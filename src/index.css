@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* Importa la fuente de Google como siempre */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* AQUÍ está la nueva forma de configurar fuentes en 2026 */
+@theme {
+  --font-poppins: "Poppins", sans-serif;
+}
