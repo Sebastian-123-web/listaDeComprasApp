@@ -1,4 +1,11 @@
 // public/sw.js
-self.addEventListener('fetch', () => {
-  // Este evento es necesario para que Chrome considere la web como instalable
+const CACHE_NAME = 'compras-app-v1';
+
+self.addEventListener('install', (event) => {
+  console.log('SW instalado');
+});
+
+self.addEventListener('fetch', (event) => {
+  // Obligatorio para que sea instalable
+  event.respondWith(fetch(event.request));
 });
