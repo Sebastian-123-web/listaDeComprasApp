@@ -3,10 +3,16 @@
   "name": "Gestor de Listas de Compra",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/favicon.png",
       "type": "image/png",
-      "sizes": "192x192 512x512",
+      "sizes": "677x527",
       "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "677x527",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
