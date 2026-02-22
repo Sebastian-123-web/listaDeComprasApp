@@ -4,27 +4,27 @@ function ProductAdd({ id, name, price, icon, onCountChange, onPriceChange }) {
 
     const [count, setCount] = useState(0)
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempPrice, setTempPrice] = useState(price);
+    const [isEditing, setIsEditing] = useState(false)
+    const [tempPrice, setTempPrice] = useState(price)
 
     const handleBlur = () => {
-        setIsEditing(false);
-        // Avisamos al padre o a la DB que el precio cambió
-        if (onPriceChange) onPriceChange(id, parseFloat(tempPrice));
-    };
+        setIsEditing(false)
+        // Solo avisamos al padre para que lo guarde en su estado local
+        if (onPriceChange) onPriceChange(parseFloat(tempPrice) || 0)
+    }
 
     // Cada vez que sumamos o restamos, llamamos a la prop onCountChange
     const handleIncrement = () => {
-        const newCount = count + 1;
-        setCount(newCount);
-        onCountChange(newCount);
+        const newCount = count + 1
+        setCount(newCount)
+        onCountChange(newCount)
     };
 
     const handleDecrement = () => {
         if (count > 0) {
-            const newCount = count - 1;
-            setCount(newCount);
-            onCountChange(newCount);
+            const newCount = count - 1
+            setCount(newCount)
+            onCountChange(newCount)
         }
     };
 

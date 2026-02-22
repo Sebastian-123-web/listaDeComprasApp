@@ -10,6 +10,9 @@ import ProductAdd from "../components/ProductAdd"
 import AddProductModal from "../components/AddProductModal"
 
 function NewList() {
+  // PARA OBTENER EL NOMBRE DEL USUARIO
+  const userProfile = useLiveQuery(() => db.userProfile.get(1));
+
   // CORREGIR ESTO, AHORA ES POR BASE DE DATOS
   const [user, setUser] = useState(localStorage.getItem("user"))
 
@@ -28,6 +31,9 @@ function NewList() {
 
   // PARA BUSCAR UN PRODUCTO EN ESPECIFICO
   const [productSearch, setProductSearch] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
+
+  //||****************************************************************************||
 
   // FUNCION QUE SE EJECUTA AL HACER CLIC EN UN EMOJI DEL SELECTOR
   const onEmojiClick = (emojiData) => {
@@ -38,11 +44,13 @@ function NewList() {
   const navigate = useNavigate();
   const products = useLiveQuery(() => db.products.toArray())
 
-  // FUNCION PARA QUE EL HIJO ACTUALICE LA CANTIDAD
-  const handleQuantityChange = (productId, newCount) => {
+  const handleProductChange = (productId, data) => {
     setSelectedProducts(prev => ({
       ...prev,
-      [productId]: newCount
+      [productId]: {
+        ...prev[productId],
+        ...data
+      }
     }));
   };
 
@@ -52,56 +60,53 @@ function NewList() {
       return Swal.fire("¡Oops!", "Ponle un nombre a tu lista", "warning");
     }
 
-    // Filtramos solo los productos que tienen una cantidad mayor a 0
+    // Mapeamos los productos seleccionados que tengan cantidad > 0
     const productsToSave = Object.entries(selectedProducts)
-      .filter(([_, count]) => count > 0)
-      .map(([productId, count]) => {
-        const productData = products.find(p => p.id === Number(productId))
-
-        return {
-          productId: Number(productId),
-          quantity: count,
-          priceAtPurchase: productData?.price || 0,
-          isDisable: false
-        }
-      })
+      .filter(([_, data]) => data.quantity > 0)
+      .map(([productId, data]) => ({
+        id_lists: null, // Se llenará abajo
+        id_products: Number(productId),
+        priceAtTime: data.priceAtTime || 0, // El precio editado en la tabla
+        quantity: data.quantity,
+        bought: false,
+        isDisable: false
+      }));
 
     if (productsToSave.length === 0) {
       return Swal.fire("Lista vacía", "Selecciona al menos un producto", "info");
     }
 
     try {
-      // 1. Guardar la lista principal y obtener su ID
       const listId = await db.lists.add({
         name: listName,
         description: description,
         icon: listIcon,
+        budget: 0,
         isDisable: false
-      })
+      });
 
-      // 2. Guardar los productos vinculados en la tabla intermedia
-      // Agregamos el listId a cada objeto de producto
-      const itemsWithListId = productsToSave.map(item => ({
+      // Agregamos el id_lists a cada registro
+      const finalItems = productsToSave.map(item => ({
         ...item,
-        listId: listId
-      }))
+        id_lists: listId
+      }));
 
-      // bulkAdd PARA AGREGAR VARIOS REGISTROS A LA VEZ
-      await db.listComplete.bulkAdd(itemsWithListId);
+      // IMPORTANTE: Según tu DB, la tabla se llama 'list_product'
+      await db.list_product.bulkAdd(finalItems);
 
       Swal.fire({
         title: '¡Éxito!',
-        text: `Lista "${listName}" creada con productos`,
+        text: `Lista "${listName}" creada`,
         icon: 'success',
         confirmButtonColor: '#d97706'
-      })
+      });
 
       navigate("/mylists");
     } catch (error) {
-      console.error("Error al guardar:", error);
-      Swal.fire("Error", "No se pudo guardar la lista", "error");
+      console.error(error);
+      Swal.fire("Error", "No se pudo guardar", "error");
     }
-  }
+  };
 
   // ACTUALIZAR EL PRECIO DEL PRODUCTO
   const updateProductPrice = async (productId, newPrice) => {
@@ -115,7 +120,7 @@ function NewList() {
 
   // FILTRO DE PRODUCTOS
   const filteredProducts = products?.filter(p => p.isDisable !== true && p.name.toLowerCase().includes(productSearch.toLowerCase()))
-  .sort((a, b) => a.name.localeCompare(b.name)) || [];
+    .sort((a, b) => a.name.localeCompare(b.name)) || [];
 
   if (!products) {
     return (
@@ -131,7 +136,7 @@ function NewList() {
       <div className="bg-gray-200 h-screen flex flex-col gap-4 p-4">
         <Back />
         <div>
-          <h2 className="text-xl font-bold">Hola {user}</h2>
+          <h1 className='text-xl font-bold text-amber-900'>¡Hola {userProfile?.name}!</h1>
           <p className="text-sm text-gray-600">Preparado para crear una Lista?</p>
         </div>
         <div className="flex flex-col gap-4">
@@ -230,6 +235,14 @@ function NewList() {
               className="absolute left-3 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
               Buscar producto
             </label>
+            {productSearch && (
+              <button
+                onClick={() => setProductSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           <div className='flex flex-col gap-4 h-[calc(100vh-470px)] overflow-auto rounded-2xl pb-4text-blue-600'>
@@ -256,10 +269,10 @@ function NewList() {
                     key={p.id}
                     id={p.id}
                     name={p.name}
-                    price={p.price}
+                    price={p.price} // Este es el precio base del catálogo
                     icon={p.icon}
-                    onPriceChange={updateProductPrice}
-                    onCountChange={(count) => handleQuantityChange(p.id, count)}
+                    onPriceChange={(newPrice) => handleProductChange(p.id, { priceAtTime: newPrice })}
+                    onCountChange={(count) => handleProductChange(p.id, { quantity: count })}
                   />
                 ))
               )

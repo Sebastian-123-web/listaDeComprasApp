@@ -4,17 +4,20 @@ import Swal from 'sweetalert2';
 import { db } from "../db/db";
 
 function AddProductModal({ isOpen, onClose }) {
-    const [newItem, setNewItem] = useState({ name: "", price: "", icon: "📦" });
+    const [newItem, setNewItem] = useState({ name: "", icon: "📦" });
     const [showEmoji, setShowEmoji] = useState(false);
 
     const handleSave = async () => {
-        if (!newItem.name || !newItem.price) return Swal.fire("Error", "Llena los campos", "warning");
+        if (!newItem.name) return Swal.fire("Error", "Llena los campos", "warning");
+
+        // Ponemos la primera letra mayuscula y el reto minuscula
+        const formattedName = newItem.name.charAt(0).toUpperCase() + newItem.name.slice(1).toLowerCase();
 
         try {
             await db.products.add({
-                name: newItem.name,
+                name: formattedName,
                 icon: newItem.icon,
-                disable: 0,
+                disable: false,
             });
 
             setNewItem({ name: "", icon: "📦" }); // Reset

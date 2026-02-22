@@ -4,9 +4,9 @@ export const db = new Dexie("ShoppingListDB")
 
 db.version(1).stores({
   products: "++id, name, icon, isDisable",
-  lists: "++id, name, description, icon, isDisable",
-  listComplete: "++id, id_lists, id_products, id_user, priceAtTime, quantity, bought, isDisable",
-  userProfile: "id, name, last_name, budget, email, avatar, isDisable"
+  lists: "++id, name, description, icon, budget, isDisable",
+  list_product: "++id, id_lists, id_products, id_user, priceAtTime, quantity, bought, isDisable",
+  userProfile: "id, name, last_name, email, avatar, isDisable"
 })
 
 db.on('populate', () => {
