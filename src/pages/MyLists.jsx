@@ -33,11 +33,11 @@ function MyLists() {
   }, []);
   const [listSearch, setListSearch] = useState("");
 
-  // PARA GUARDAR PRESUPUESTO Y CAMBIAR EL BOTON
-  const [budget, setBudget] = useState(localStorage.getItem("budgetList") ? localStorage.getItem("budgetList") : 0)
-  const [isEditing, setIsEditing] = useState(false)
+  // PARA GUARDAR PRESUPUESTO
+  const [budget, setBudget] = useState()
 
   useEffect(() => {
+    obtenerPresupuesto()
     // 2. Función para pedir el nombre si no existe en la DB
     const checkUser = async () => {
       // Esperamos un momento a que useLiveQuery verifique la DB
@@ -75,6 +75,12 @@ function MyLists() {
     checkUser();
   }, []);
 
+  // OBTIENE LA SUMA DE TODOS LOS PRESUPUESTO DE CADA LISTA
+  const obtenerPresupuesto = async () => {
+    const todosPresupuesto = await db.lists.orderBy("budget").uniqueKeys()
+    setBudget(todosPresupuesto.reduce((actual,siguiente)=>actual+siguiente,0))
+  }
+
   // MUESTRA LA LISTA DE COMPRAS
   const filteredList = lists?.filter(p => p.isDisable !== true && p.name.toLowerCase().includes(listSearch.toLowerCase())) || [];
 
@@ -108,7 +114,7 @@ function MyLists() {
       <div className='p-5 bg-white rounded-2xl relative'>
         <div>
           <p className='mb-1 text-gray-500'>Presupuesto general</p>
-          <p className='text-4xl font-bold'>S/. FALTA</p>
+          <p className='text-4xl font-bold'>S/. {budget}</p>
         </div>
       </div>
       <div className=''>
