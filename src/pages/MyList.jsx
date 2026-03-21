@@ -152,7 +152,11 @@ function MyList() {
             <span>+</span> Agregar
           </button> */}
         </div>
-
+        <div className="px-4 flex flex-col">
+          <button className='block bg-amber-600 p-3 rounded-2xl active:bg-amber-500'>
+            <p className='text-xl font-bold text-white'>Agregar producto</p>
+          </button>
+        </div>
         {/* Alerta de presupuesto excedido */}
         {excedido && (
           <div className="mx-4 mt-4 p-3 bg-red-100 border-l-4 border-red-500 rounded-r-xl">

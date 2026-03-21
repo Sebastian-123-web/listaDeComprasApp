@@ -31,7 +31,7 @@ function AddProductModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in duration-200">
                 <h2 className="text-xl font-bold mb-4">Nuevo Producto</h2>
 
@@ -59,7 +59,7 @@ function AddProductModal({ isOpen, onClose }) {
                                         className="fixed inset-0 z-[-1]"
                                         onClick={() => setShowEmoji(false)}
                                     ></div>
-                                    <div className="absolute z-[70] top-24 shadow-2xl">
+                                    <div className="absolute z-70 top-24 shadow-2xl">
                                         <EmojiPicker
                                             onEmojiClick={(e) => {
                                                 setNewItem({ ...newItem, icon: e.emoji });
