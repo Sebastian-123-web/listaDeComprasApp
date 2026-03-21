@@ -145,14 +145,14 @@ function NewList() {
               <input
                 type="text"
                 id="name-list"
-                className="peer shadow-xl font-bold block w-full rounded-lg bg-white bg-transparent px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
+                className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
                 placeholder=" "
                 value={listName}
                 onChange={(e) => setListName(e.target.value)}
               />
               <label
                 htmlFor="name-list"
-                className="absolute left-3 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
+                className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
                 Nombre de la Lista
               </label>
             </div>
@@ -195,14 +195,14 @@ function NewList() {
             <input
               type="text"
               id="description-list"
-              className="peer shadow-xl font-bold block w-full rounded-lg bg-white bg-transparent px-3 pt-4 pb-2 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
+              className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
               placeholder=" "
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
             <label
               htmlFor="description-list"
-              className="absolute left-3 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
+              className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
               Descripcion de la Lista
             </label>
           </div>
@@ -225,14 +225,14 @@ function NewList() {
             <input
               type="text"
               id="name-search"
-              className="peer shadow-xl font-bold block w-full rounded-lg bg-white bg-transparent px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
+              className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
               placeholder=" "
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
             />
             <label
               htmlFor="name-search"
-              className="absolute left-3 top-4 z-10 origin-[0] -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
+              className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
               Buscar producto
             </label>
             {productSearch && (
