@@ -3,6 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/db";
 import Back from "../components/Back";
 import Swal from "sweetalert2";
+import { TrashIcon } from "@heroicons/react/16/solid";
 
 function MyList() {
   const { id } = useParams();
@@ -86,11 +87,14 @@ function MyList() {
       title: 'Eliminar lista',
       text: '¿Seguro que desea eliminar la lista?',
       showCancelButton: true,
-      confirmButtonColor: '#e01e42',
-      cancelButtonColor: '#e17100ba',
       cancelButtonText: 'No',
       confirmButtonText: 'Si, eliminar',
-      reverseButtons: true
+      reverseButtons: true,
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: 'bg-red-500 block text-white font-bold py-2 px-4 rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300',
+        cancelButton: 'bg-gray-200 block text-gray-800 font-bold mr-5 py-2 px-4 rounded-xl ml-2 hover:bg-gray-300'
+      }
     })
 
     if (result.isConfirmed) {
@@ -138,7 +142,7 @@ function MyList() {
           </div>
           <button className="bg-amber-100 text-amber-700 p-2 px-4 font-bold rounded-2xl"
             onClick={() => deleteList(listData.id)}>
-            DELETE
+            <TrashIcon className="h-6 w-6 text-amber-700" />
           </button>
           {/* BOTÓN AGREGAR MÁS PRODUCTOS */}
           {/* <button
