@@ -75,7 +75,7 @@ function UserProfile() {
         {/* Sección de Avatar y Nombre Principal */}
         <div className="flex flex-col items-center gap-3 mt-4">
           <div className="relative">
-            <div className="w-24 h-24 bg-amber-600 rounded-full shadow-xl flex items-center justify-center text-5xl border-4 border-white">
+            <div className="w-24 h-24 bg-amber-600 rounded-full shadow-xl flex items-center justify-center text-5xl border-4 border-white text-white">
               {user.avatar || user.name.charAt(0)}
             </div>
             {isEditing && (
