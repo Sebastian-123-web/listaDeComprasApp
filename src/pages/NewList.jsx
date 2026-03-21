@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 import { useLiveQuery } from "dexie-react-hooks"
 import EmojiPicker from 'emoji-picker-react'
 import Swal from 'sweetalert2';
+import { MagnifyingGlassIcon } from '@heroicons/react/16/solid'
 
 import { db } from "../db/db"
 import Back from "../components/Back"
@@ -152,7 +153,7 @@ function NewList() {
               />
               <label
                 htmlFor="name-list"
-                className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
+                className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:-translate-x-6 peer-focus:scale-75 peer-focus:text-orange-500">
                 Nombre de la Lista
               </label>
             </div>
@@ -202,7 +203,7 @@ function NewList() {
             />
             <label
               htmlFor="description-list"
-              className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
+              className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:-translate-x-6 peer-focus:scale-75 peer-focus:text-orange-500">
               Descripcion de la Lista
             </label>
           </div>
@@ -232,8 +233,8 @@ function NewList() {
             />
             <label
               htmlFor="name-search"
-              className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
-              Buscar producto
+              className="absolute left-3 top-4 z-10 flex -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:-translate-x-6 peer-focus:scale-75 peer-focus:text-orange-500">
+              <MagnifyingGlassIcon className="h-6 w-6 mr-1" /><p>Buscar producto</p>
             </label>
             {productSearch && (
               <button
@@ -283,7 +284,7 @@ function NewList() {
           <button
             onClick={addShoppingList}
             className='w-full bg-amber-600 p-4 rounded-2xl active:bg-amber-500 shadow-lg text-white font-bold text-xl'>
-            GUARDAR LISTA
+            Guardar lista
           </button>
         </div>
       </div>
