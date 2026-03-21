@@ -80,6 +80,39 @@ function MyList() {
     }
   };
 
+  const deleteList = async (listId) => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: 'Eliminar lista',
+      text: '¿Seguro que desea eliminar la lista?',
+      showCancelButton: true,
+      confirmButtonColor: '#e01e42',
+      cancelButtonColor: '#e17100ba',
+      cancelButtonText: 'No',
+      confirmButtonText: 'Si, eliminar',
+      reverseButtons: true
+    })
+
+    if (result.isConfirmed) {
+      try {
+        await db.lists.update(listId, { isDisable: true })
+
+        Swal.fire({
+          title: "Lista eliminado!",
+          icon: "success",
+          timer: 2500,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        })
+        navigate(`/mylists`)
+      } catch (error) {
+        console.error(error)
+        Swal.fire('Error', 'No se pudo actualizar el estado', 'error')
+      }
+    }
+  }
+
   if (!listData) return <div className="p-10 text-center">Cargando...</div>;
 
   return (
@@ -103,14 +136,17 @@ function MyList() {
               </button>
             </div>
           </div>
-
+          <button className="bg-amber-100 text-amber-700 p-2 px-4 font-bold rounded-2xl"
+            onClick={() => deleteList(listData.id)}>
+            DELETE
+          </button>
           {/* BOTÓN AGREGAR MÁS PRODUCTOS */}
-          <button
+          {/* <button
             onClick={() => navigate(`/edit-list/${id}`)} // Ajusta la ruta a tu pantalla de edición
             className="bg-amber-100 text-amber-700 p-2 px-4 rounded-xl font-bold text-sm flex items-center gap-2 active:scale-95 transition-transform"
           >
             <span>+</span> Agregar
-          </button>
+          </button> */}
         </div>
 
         {/* Alerta de presupuesto excedido */}
