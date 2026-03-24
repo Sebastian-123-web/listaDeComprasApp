@@ -14,9 +14,6 @@ function NewList() {
   // PARA OBTENER EL NOMBRE DEL USUARIO
   const userProfile = useLiveQuery(() => db.userProfile.get(1));
 
-  // CORREGIR ESTO, AHORA ES POR BASE DE DATOS
-  const [user, setUser] = useState(localStorage.getItem("user"))
-
   const [listName, setListName] = useState("");
   const [description, setDescription] = useState("");
 
@@ -106,16 +103,6 @@ function NewList() {
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "No se pudo guardar", "error");
-    }
-  };
-
-  // ACTUALIZAR EL PRECIO DEL PRODUCTO
-  const updateProductPrice = async (productId, newPrice) => {
-    try {
-      await db.products.update(productId, { price: newPrice });
-      console.log("Precio actualizado en la DB");
-    } catch (error) {
-      console.error("Error al actualizar precio:", error);
     }
   };
 
@@ -272,6 +259,8 @@ function NewList() {
                     name={p.name}
                     price={p.price} // Este es el precio base del catálogo
                     icon={p.icon}
+                    initialPrice={selectedProducts[p.id]?.priceAtTime ?? p.price}
+                    initialCount={selectedProducts[p.id]?.quantity || 0}
                     onPriceChange={(newPrice) => handleProductChange(p.id, { priceAtTime: newPrice })}
                     onCountChange={(count) => handleProductChange(p.id, { quantity: count })}
                   />
