@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../db/db"
 import Swal from 'sweetalert2'
+import { MagnifyingGlassIcon } from '@heroicons/react/16/solid'
 
 function MyLists() {
   // 1. Obtenemos el perfil directamente de la base de datos
@@ -134,8 +135,8 @@ function MyLists() {
           />
           <label
             htmlFor="name-search"
-            className="absolute left-3 top-4 z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-orange-500">
-            Buscar tu lista de compras
+            className="absolute left-3 top-4 flex z-10 -translate-y-4 scale-75 transform  px-2 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:-translate-x-6 peer-focus:scale-75 peer-focus:text-orange-500">
+            <MagnifyingGlassIcon className="h-6 w-6 mr-1" /><p>Buscar tu lista de compras</p>
           </label>
           {listSearch && (
             <button
@@ -179,7 +180,7 @@ function MyLists() {
       </div>
       <div className='fixed bottom-4 right-0 w-full text-center px-4'>
         <Link to={"/newlist"} className='block bg-amber-600 p-3 rounded-2xl active:bg-amber-500'>
-          <p className='text-xl font-bold text-white'>NUEVA LISTA</p>
+          <p className='text-xl font-bold text-white'>Nueva lista</p>
         </Link>
       </div>
     </div>
