@@ -13,9 +13,6 @@ function NewList() {
   // PARA OBTENER EL NOMBRE DEL USUARIO
   const userProfile = useLiveQuery(() => db.userProfile.get(1));
 
-  // CORREGIR ESTO, AHORA ES POR BASE DE DATOS
-  const [user, setUser] = useState(localStorage.getItem("user"))
-
   const [listName, setListName] = useState("");
   const [description, setDescription] = useState("");
 
@@ -133,7 +130,7 @@ function NewList() {
 
   return (
     <>
-      <div className="bg-gray-200 h-screen flex flex-col gap-4 p-4">
+      <div className="bg-gray-100 h-screen flex flex-col gap-4 p-4">
         <Back />
         <div>
           <h1 className='text-xl font-bold text-amber-900'>¡Hola {userProfile?.name}!</h1>
@@ -145,7 +142,7 @@ function NewList() {
               <input
                 type="text"
                 id="name-list"
-                className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
+                className="peer shadow-md font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
                 placeholder=" "
                 value={listName}
                 onChange={(e) => setListName(e.target.value)}
@@ -161,7 +158,7 @@ function NewList() {
               {/* Botón que abre el selector */}
               <button
                 onClick={() => setShowPicker(!showPicker)}
-                className="text-xl bg-white w-12 h-12 shadow-xl rounded-lg flex items-center justify-center active:scale-95 transition-all"
+                className="text-xl bg-white w-12 h-12 shadow-md rounded-lg flex items-center justify-center active:scale-95 transition-all"
               >
                 {listIcon}
               </button>
@@ -195,7 +192,7 @@ function NewList() {
             <input
               type="text"
               id="description-list"
-              className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
+              className="peer shadow-md font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:border-orange-500 focus:outline-none transition-colors"
               placeholder=" "
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -217,7 +214,9 @@ function NewList() {
             {/* AGREGAR UN PRODUCTO NUEVO DESDE CREAR LISTA */}
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-amber-600 active:bg-amber-500 shadow-lg py-1 px-3 rounded-2xl text-amber-50 font-bold text-3xl">+</button>
+              className="bg-amber-600 active:bg-amber-500 shadow-lg py-1 px-3 rounded-2xl text-amber-50 font-bold text-3xl"
+              >+
+            </button>
           </div>
 
           {/* ENLISTA LOS PRODUCTOS PARA SER AGREGADOS A LA LISTA DE COMPRAS NUEVA */}
@@ -225,7 +224,7 @@ function NewList() {
             <input
               type="text"
               id="name-search"
-              className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
+              className="peer shadow-md font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
               placeholder=" "
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}

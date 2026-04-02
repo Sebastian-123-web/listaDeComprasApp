@@ -32,7 +32,7 @@ function ProductAdd({ id, name, price, icon, onCountChange, onPriceChange }) {
         <>
             <div
                 id={id}
-                className='bg-white p-4 rounded-2xl flex justify-between items-center has-checked:border-green-500 has-checked:bg-green-50'>
+                className='bg-white shadow-md p-4 rounded-2xl flex justify-between items-center has-checked:border-green-500 has-checked:bg-green-50'>
                 <div className='flex items-center gap-2'>
                     <p className="text-2xl">{icon}</p>
                     <p className='font-bold'>{name}</p>

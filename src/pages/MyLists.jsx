@@ -93,7 +93,7 @@ function MyLists() {
   }
 
   return (
-    <div className='bg-gray-200 min-h-screen flex flex-col gap-4 p-4'>
+    <div className='bg-gray-100 min-h-screen flex flex-col gap-4 p-4'>
       {/* HEADER ACTUALIZADO */}
       <div className='flex justify-between items-center'>
         <div className='w-full'>
@@ -111,7 +111,7 @@ function MyLists() {
       </div>
 
 
-      <div className='p-5 bg-white rounded-2xl relative'>
+      <div className='p-5 bg-white shadow-md rounded-2xl relative'>
         <div>
           <p className='mb-1 text-gray-500'>Presupuesto general</p>
           <p className='text-4xl font-bold'>S/. {budget}</p>
@@ -127,7 +127,7 @@ function MyLists() {
           <input
             type="text"
             id="name-search"
-            className="peer shadow-xl font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
+            className="peer shadow-md font-bold block w-full rounded-lg bg-white px-3 pt-4 pb-2 text-gray-900 focus:outline-none transition-colors"
             placeholder=" "
             value={listSearch}
             onChange={(e) => setListSearch(e.target.value)}
@@ -155,7 +155,7 @@ function MyLists() {
             ) : (
               filteredList.map((l) => (
                 <Link to={`/mylist/` + l.id} key={l.id}>
-                  <div className='bg-white px-6 py-4 rounded-2xl border-l-4 border-amber-500 mb-2'>
+                  <div className='bg-white shadow-md px-6 py-4 rounded-2xl border-l-4 border-amber-500 mb-2'>
                     <div className='flex justify-between gap-1'>
                       <div className='flex gap-2 items-center'>
                         <p className='text-2xl'>{l.icon}</p>

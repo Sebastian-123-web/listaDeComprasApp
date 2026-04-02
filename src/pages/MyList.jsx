@@ -1,11 +1,17 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/db";
-import Back from "../components/Back";
 import Swal from "sweetalert2";
 import { TrashIcon } from "@heroicons/react/16/solid";
 
+import Back from "../components/Back";
+import ProductsModal from "../components/ProductsModal";
+
 function MyList() {
+  // PARA AGREGAR PRODUCTOS A LA LISTA
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -121,9 +127,9 @@ function MyList() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 pb-32">
+      <div className="min-h-screen bg-gray-50 pb-26">
         {/* Header */}
-        <div className="p-4 flex items-center justify-between sticky top-0 z-10">
+        <div className="p-4 flex items-center justify-between bg-gray-50 sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <Back />
             <div>
@@ -144,13 +150,14 @@ function MyList() {
             onClick={() => deleteList(listData.id)}>
             <TrashIcon className="h-6 w-6 text-amber-700" />
           </button>
-          {/* BOTÓN AGREGAR MÁS PRODUCTOS */}
-          {/* <button
-            onClick={() => navigate(`/edit-list/${id}`)} // Ajusta la ruta a tu pantalla de edición
-            className="bg-amber-100 text-amber-700 p-2 px-4 rounded-xl font-bold text-sm flex items-center gap-2 active:scale-95 transition-transform"
-          >
-            <span>+</span> Agregar
-          </button> */}
+        </div>
+
+        <div className="px-4 flex flex-col">
+          <button
+            className='block bg-amber-600 p-3 rounded-2xl active:bg-amber-500'
+            onClick={() => setIsModalOpen(true)}>
+            <p className='text-xl font-bold text-white'>Agregar producto</p>
+          </button>
         </div>
 
         {/* Alerta de presupuesto excedido */}
@@ -224,6 +231,13 @@ function MyList() {
           </div>
         </div>
       </div>
+
+      {/* MODAL DE PRODUCTOS PARA AGREGARLOS / QUITARLOS */}
+      <ProductsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        listId={id} // Le pasamos el ID que obtenemos de useParams()
+      />
     </>
   );
 }
