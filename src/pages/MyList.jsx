@@ -3,25 +3,29 @@ import { useParams, useNavigate } from "react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/db";
 import Swal from "sweetalert2";
-import { TrashIcon } from "@heroicons/react/16/solid";
+import { TrashIcon, XMarkIcon } from "@heroicons/react/16/solid"; // Añadimos XMarkIcon
 
 import Back from "../components/Back";
 import ProductsModal from "../components/ProductsModal";
 
 function MyList() {
-  // PARA AGREGAR PRODUCTOS A LA LISTA
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // NUEVOS ESTADOS PARA SELECCIÓN MÚLTIPLE
+  const [selectedForDelete, setSelectedForDelete] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 1. Traemos la lista y el perfil del usuario (para el presupuesto)
   const listData = useLiveQuery(() => db.lists.get(Number(id)), [id]);
 
+  // FILTRAMOS PARA NO MOSTRAR LOS PRODUCTOS "DESHABILITADOS"
   const productsInList = useLiveQuery(async () => {
     const items = await db.list_product
       .where("id_lists")
       .equals(Number(id))
+      .filter(item => item.isDisable !== true) // Filtro de borrado lógico
       .toArray();
 
     const detailedProducts = await Promise.all(
@@ -38,20 +42,57 @@ function MyList() {
     return detailedProducts.sort((a, b) => a.bought - b.bought);
   }, [id]);
 
+  // FUNCIÓN PARA "ELIMINAR" (DESHABILITAR) SELECCIONADOS
+  const deleteSelectedItems = async () => {
+    if (selectedForDelete.length === 0) return;
+
+    const result = await Swal.fire({
+      title: '¿Quitar productos?',
+      text: `Se quitarán ${selectedForDelete.length} productos de la lista.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, quitar',
+      confirmButtonColor: '#e11d48',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Actualizamos isDisable a true para todos los IDs seleccionados
+        await Promise.all(
+          selectedForDelete.map(itemId =>
+            db.list_product.update(itemId, { isDisable: true })
+          )
+        );
+
+        setSelectedForDelete([]);
+        setIsEditMode(false);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Productos quitados',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const toggleSelection = (itemId) => {
+    setSelectedForDelete(prev =>
+      prev.includes(itemId) ? prev.filter(i => i !== itemId) : [...prev, itemId]
+    );
+  };
+
   const toggleBought = async (itemId, currentStatus) => {
+    if (isEditMode) return; // Evitar marcar como comprado si estamos editando
     await db.list_product.update(itemId, {
       bought: currentStatus === 1 ? 0 : 1
     });
   };
-
-  const updatePrice = async (itemId, newPrice) => {
-    await db.list_product.update(itemId, { priceAtTime: parseFloat(newPrice) || 0 });
-  };
-
-  // Cálculos de dinero
-  const totalCompra = productsInList?.reduce((acc, curr) => acc + (curr.priceAtTime * curr.quantity), 0) || 0;
-  const presupuesto = listData?.budget || 0;
-  const excedido = totalCompra > presupuesto;
 
   // Cambiar el valor del presupuesto
   const handleEditBudget = async () => {
@@ -87,124 +128,147 @@ function MyList() {
     }
   };
 
-  const deleteList = async (listId) => {
-    const result = await Swal.fire({
-      icon: "warning",
-      title: 'Eliminar lista',
-      text: '¿Seguro que desea eliminar la lista?',
+  const updateQuantity = async (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
+    await db.list_product.update(itemId, { quantity: newQuantity });
+  };
+
+  const updatePrice = async (itemId, currentPrice) => {
+    const { value: newPrice } = await Swal.fire({
+      title: 'Actualizar Precio',
+      input: 'number',
+      inputLabel: 'Nuevo precio unitario',
+      inputValue: currentPrice,
       showCancelButton: true,
-      cancelButtonText: 'No',
-      confirmButtonText: 'Si, eliminar',
-      reverseButtons: true,
-      buttonsStyling: false,
-      customClass: {
-        confirmButton: 'bg-red-500 block text-white font-bold py-2 px-4 rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300',
-        cancelButton: 'bg-gray-200 block text-gray-800 font-bold mr-5 py-2 px-4 rounded-xl ml-2 hover:bg-gray-300'
-      }
-    })
+      inputAttributes: { step: '0.10' }
+    });
 
-    if (result.isConfirmed) {
-      try {
-        await db.lists.update(listId, { isDisable: true })
-
-        Swal.fire({
-          title: "Lista eliminado!",
-          icon: "success",
-          timer: 2500,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
-        })
-        navigate(`/mylists`)
-      } catch (error) {
-        console.error(error)
-        Swal.fire('Error', 'No se pudo actualizar el estado', 'error')
-      }
+    if (newPrice !== undefined) {
+      await db.list_product.update(itemId, { priceAtTime: parseFloat(newPrice) || 0 });
     }
-  }
+  };
+
+  const totalCompra = productsInList?.reduce((acc, curr) => acc + (curr.priceAtTime * curr.quantity), 0) || 0;
+  const presupuesto = listData?.budget || 0;
+  const excedido = totalCompra > presupuesto;
 
   if (!listData) return <div className="p-10 text-center">Cargando...</div>;
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 pb-26">
-        {/* Header */}
-        <div className="p-4 flex items-center justify-between bg-gray-50 sticky top-0 z-10">
+      <div className="min-h-screen bg-gray-100 pb-32">
+        <div className="p-4 flex items-center justify-between bg-white sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <Back />
             <div>
               <h1 className="text-xl font-bold text-gray-800">{listData.icon} {listData.name}</h1>
-              {/* Botón interactivo para el presupuesto */}
-              <button
-                onClick={handleEditBudget}
-                className="flex items-center gap-1 group"
-              >
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-amber-600 transition-colors">
+              <button onClick={handleEditBudget} className="flex items-center gap-1 group">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                   Presupuesto: S/ {presupuesto.toFixed(2)}
                 </p>
-                <span className="text-[10px] text-amber-500 opacity-0 group-hover:opacity-100">✏️</span>
               </button>
             </div>
           </div>
-          <button className="bg-amber-100 text-amber-700 p-2 px-4 font-bold rounded-2xl"
-            onClick={() => deleteList(listData.id)}>
-            <TrashIcon className="h-6 w-6 text-amber-700" />
-          </button>
-        </div>
 
-        <div className="px-4 flex flex-col">
-          <button
-            className='block bg-amber-600 p-3 rounded-2xl active:bg-amber-500'
-            onClick={() => setIsModalOpen(true)}>
-            <p className='text-xl font-bold text-white'>Agregar producto</p>
-          </button>
+          {/* BOTÓN DINÁMICO: Solo se muestra si NO estamos editando */}
+          {!isEditMode && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-amber-600 active:bg-amber-500 shadow-lg py-1 px-3 rounded-2xl text-amber-50 font-bold text-3xl">+</button>
+          )}
+          {isEditMode && (
+            <div className="flex gap-2 animate-in slide-in-from-right duration-200">
+              <button
+                onClick={() => { setIsEditMode(false); setSelectedForDelete([]); }}
+                className="bg-gray-200 p-2 rounded-2xl text-gray-600"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+              <button
+                onClick={deleteSelectedItems}
+                disabled={selectedForDelete.length === 0}
+                className={`p-2 px-4 rounded-2xl font-bold transition-all ${selectedForDelete.length > 0 ? "bg-red-500 text-white shadow-lg" : "bg-gray-100 text-gray-300"
+                  }`}
+              >
+                <TrashIcon className="h-6 w-6" />
+              </button>
+            </div>
+          )}
         </div>
-        {/* Alerta de presupuesto excedido */}
-        {excedido && (
-          <div className="mx-4 mt-4 p-3 bg-red-100 border-l-4 border-red-500 rounded-r-xl">
-            <p className="text-red-700 text-xs font-bold italic">⚠️ ¡Has superado tu presupuesto por S/ {(totalCompra - presupuesto).toFixed(2)}!</p>
-          </div>
-        )}
 
         <div className="p-4 flex flex-col gap-3">
           {productsInList?.map((item) => (
             <div
               key={item.id}
-              className={`p-4 rounded-2xl flex justify-between items-center transition-all ${item.bought
-                ? "bg-gray-200 opacity-60 grayscale scale-95"
-                : "bg-white shadow-md border-l-4 border-amber-500"
+              onContextMenu={(e) => { e.preventDefault(); setIsEditMode(true); }}
+              className={`p-4 rounded-3xl flex flex-col gap-3 transition-all ${selectedForDelete.includes(item.id)
+                ? "bg-red-50 border-2 border-red-500"
+                : item.bought
+                  ? "bg-gray-200 opacity-60"
+                  : "bg-white shadow-sm border border-gray-100"
                 }`}
             >
-              <div className="flex items-center gap-4">
-                <input
-                  type="checkbox"
-                  checked={item.bought === 1}
-                  onChange={() => toggleBought(item.id, item.bought)}
-                  className="w-6 h-6 rounded-full border-2 border-amber-500 accent-amber-600"
-                />
-
+              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl">{item.icon}</span>
-                  <div>
-                    <p className={`font-bold text-lg ${item.bought ? "line-through text-gray-500" : "text-gray-800"}`}>
-                      {item.name}
-                    </p>
-                    <p className="text-xs text-gray-400 font-medium">Cant: {item.quantity}</p>
+                  {/* Checkbox de Selección Múltiple o Comprado */}
+                  {isEditMode ? (
+                    <div
+                      onClick={() => toggleSelection(item.id)}
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${selectedForDelete.includes(item.id) ? "bg-red-500 border-red-500" : "border-gray-300 bg-white"
+                        }`}
+                    >
+                      {selectedForDelete.includes(item.id) && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                    </div>
+                  ) : (
+                    <input
+                      type="checkbox"
+                      checked={item.bought === 1}
+                      onChange={() => toggleBought(item.id, item.bought)}
+                      className="w-6 h-6 rounded-full border-2 border-amber-500 accent-amber-600"
+                    />
+                  )}
+                  <div className="flex flex-col gap-1 items-start">
+                    <div className="flex items-center">
+                      <span className="text-xl">{item.icon}</span>
+                      <p className={`font-bold text-gray-800 ${item.bought && !isEditMode ? "line-through opacity-50" : ""}`}>
+                        {item.name}
+                      </p>
+                    </div>
+                    {/* Precio Unitario Editable */}
+                    <button
+                      onClick={() => updatePrice(item.id, item.priceAtTime)}
+                      className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-lg text-sm font-bold border border-emerald-100"
+                    >
+                      S/ {item.priceAtTime.toFixed(2)}
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-amber-600">S/</span>
-                  <input
-                    type="number"
-                    defaultValue={item.priceAtTime}
-                    onBlur={(e) => updatePrice(item.id, e.target.value)}
-                    disabled={item.bought === 1}
-                    className={`w-16 p-1 text-right font-black focus:outline-none ${item.bought ? "bg-transparent text-gray-400" : "text-gray-800 border-b border-dashed border-amber-300"
-                      }`}
-                  />
+                {/* Fila de controles de cantidad y subtotal */}
+                <div className="flex justify-between items-center rounded-2xl">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="w-8 h-8 flex items-center justify-center bg-white rounded-xl text-xl font-bold text-gray-400 active:text-orange-500"
+                    >
+                      -
+                    </button>
+                    <div className="shadow-sm w-8 h-8 flex justify-center items-center rounded-xl">
+                      <span className="font-black text-gray-700 w-4 text-center">{item.quantity}</span>
+                    </div>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-8 h-8 flex items-center justify-center bg-white rounded-xl text-xl font-bold text-gray-400 active:text-orange-500"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* <div className="text-right">
+                      <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Subtotal</p>
+                      <p className="font-black text-gray-800">S/ {(item.priceAtTime * item.quantity).toFixed(2)}</p>
+                    </div> */}
+
                 </div>
               </div>
             </div>

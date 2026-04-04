@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/db";
-import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/16/solid'; // Si usas Heroicons
+import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/16/solid';
 
 import AddProductModal from "../components/AddProductModal"
 
@@ -25,20 +25,37 @@ function ProductsModal({ isOpen, onClose, listId }) {
 
     if (!isOpen) return null;
 
-    // LÓGICA DE FILTRADO Y ORDENAMIENTO
+    // LÓGICA DE FILTRADO ACTUALIZADA
     const filteredAndSortedProducts = allProducts
-        ?.filter(p =>
-            p.isDisable !== true &&
-            p.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .sort((a, b) => a.name.localeCompare(b.name)); // Orden alfabético (A-Z)
+        ?.filter(p => {
+            // 1. Que no esté deshabilitado en el catálogo
+            const isNotDisabled = p.isDisable !== true;
+            // 2. Que coincida con la búsqueda
+            const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+            // 3. QUE NO ESTÉ YA EN LA LISTA ACTUAL (isDisable en list_product indica que fue quitado)
+            const isAlreadyInList = currentItems?.some(item =>
+                item.id_products === p.id && item.isDisable !== true
+            );
 
-    const toggleProduct = (productId) => {
-        setSelectedIds(prev =>
-            prev.includes(productId)
-                ? prev.filter(id => id !== productId)
-                : [...prev, productId]
-        );
+            return isNotDisabled && matchesSearch && !isAlreadyInList;
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    // Función para agregar directamente al hacer clic
+    const handleQuickAdd = async (productId) => {
+        try {
+            await db.list_product.add({
+                id_lists: Number(listId),
+                id_products: productId,
+                priceAtTime: 0,
+                quantity: 1,
+                bought: 0,
+                isDisable: false
+            });
+            // Opcional: Cerrar el modal o dejarlo abierto para agregar más
+        } catch (error) {
+            console.error("Error al agregar:", error);
+        }
     };
 
     const handleOnProductCreated = (newProductId) => {
@@ -103,33 +120,19 @@ function ProductsModal({ isOpen, onClose, listId }) {
 
                 {/* LISTA DE PRODUCTOS */}
                 <div className="flex-1 overflow-auto rounded-2xl pr-1 flex flex-col gap-3">
-                    {filteredAndSortedProducts?.length > 0 ? (
-                        filteredAndSortedProducts.map((item) => (
-                            <div
-                                key={item.id}
-                                onClick={() => toggleProduct(item.id)}
-                                className={`p-4 rounded-2xl flex justify-between items-center cursor-pointer transition-all border-l-4 ${selectedIds.includes(item.id)
-                                    ? "bg-amber-50 border-amber-500 shadow-sm"
-                                    : "bg-white border-transparent hover:bg-gray-100"
-                                    }`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedIds.includes(item.id)
-                                        ? "bg-amber-500 border-amber-500"
-                                        : "border-gray-300 bg-white"
-                                        }`}>
-                                        {selectedIds.includes(item.id) && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-2xl">{item.icon}</span>
-                                        <p className="font-bold text-gray-700">{item.name}</p>
-                                    </div>
-                                </div>
+                    {filteredAndSortedProducts?.map((item) => (
+                        <div
+                            key={item.id}
+                            onClick={() => handleQuickAdd(item.id)} // Agregar con un clic
+                            className="p-4 rounded-2xl flex justify-between items-center bg-white border border-gray-100 hover:border-amber-500 hover:bg-amber-50 transition-all cursor-pointer shadow-sm group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">{item.icon}</span>
+                                <p className="font-bold text-gray-700">{item.name}</p>
                             </div>
-                        ))
-                    ) : (
-                        <p className="text-center text-gray-400 py-10">No se encontraron productos</p>
-                    )}
+                            <PlusIcon className="w-5 h-5 text-gray-300 group-hover:text-amber-600" />
+                        </div>
+                    ))}
                 </div>
 
                 <div className="flex gap-4 pt-2">
