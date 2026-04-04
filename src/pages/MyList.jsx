@@ -170,7 +170,6 @@ function MyList() {
             </div>
           </div>
 
-
           {/* BOTÓN DINÁMICO: Solo se muestra si NO estamos editando */}
           {!isEditMode && (
             <button
